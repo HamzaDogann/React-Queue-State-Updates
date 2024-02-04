@@ -1,70 +1,57 @@
-# Getting Started with Create React App
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+# React-Queue-State-Updates
 
-## Available Scripts
+## Queueing a Series of State Updates Nedir?
 
-In the project directory, you can run:
+Bu proje, React uygulamalarında durumu güncellemek için bir kuyruk mekanizması kullanarak state güncellemelerini düzenleyen bir mimari sunar. Bu, özellikle ardışık state güncellemeleri yaparken, performansı artırmak ve beklenmeyen sonuçları önlemek amacıyla kullanışlıdır.
 
-### `npm start`
+## Nasıl Bir Mimaride Çalışır?
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+React-Queue-State-Updates, state güncellemelerini bir kuyrukta toplar ve uygun bir zaman aralığında tek bir işlem olarak gerçekleştirir. Bu, ardışık güncellemeleri birleştirerek performans avantajı sağlar ve uygulamanın daha akıcı çalışmasına yardımcı olur.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## Dikkat Edilmesi Gereken Şeyler
 
-### `npm test`
+- Kuyruk, işlemleri sırayla gerçekleştirdiği için, asenkron operasyonlarda dikkatli olunmalıdır.
+- Kuyruk, genellikle kullanıcının etkileşimlerini işlemek için kullanılan event handler'larla entegre edilmelidir.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## Faydaları
 
-### `npm run build`
+- Ardışık state güncellemelerini birleştirerek gereksiz render işlemlerini önler.
+- Performansı artırır ve uygulamanın daha akıcı çalışmasını sağlar.
+- Kuyruk mekanizması, state güncellemelerini düzenleyerek beklenmeyen hataları önlemeye yardımcı olur.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+```javascript
+import { useState } from 'react';
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+export default function RequestTracker() {
+  const [pending, setPending] = useState(0);
+  const [completed, setCompleted] = useState(0);
 
-### `npm run eject`
+  async function handleClick() {
+    setPending(p=> p + 1);  // Bir güncelleyici fonksiyon gibi davranır. 
+    await delay(3000);  // Bir Gecikme sağlayıcısıdır. 3 saniye gecikme verir.
+    setPending(p=> p - 1); // Burada ki "p" değeri pending'i gösteriyor üst satırlarda belirtilen değer pending de depolanıyor ve bu satırda p - 1 yani pending - 1 olmuş oluyor.
+    setCompleted(c=> c + 1);  // Bu satır da completed değerini artırmaya yönekik bir kod yazmış bulunuyoruz.
+  }
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+  return (
+    <>
+      <h3>
+        Pending: {pending}
+      </h3>
+      <h3>
+        Completed: {completed}
+      </h3>
+      <button onClick={handleClick}>
+        Buy     
+      </button>
+    </>
+  );
+}
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+function delay(ms) {
+  return new Promise(resolve => {
+    setTimeout(resolve, ms);
+  });
+}
